@@ -1,18 +1,27 @@
 import React from "react";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
+
+import HomeView from "./views/Home";
+import SettingsView from "./views/Settings";
+import LoginView from "./views/Login";
+import RegisterView from "./views/Register";
+import Navbar from "./components/Navbar";
+import ChatView from "./views/Chat";
 
 const App = () => {
-  const title = "Hello World";
-  const enhancedTitle = title + " - React App!";
-
-  const sendNotifications = () => {
-    electron.notificationApi.sendNotification("My custom message");
-  };
-
   return (
-    <div>
-      <h1>{enhancedTitle}</h1>
-      <button onClick={sendNotifications}>Send Notifications</button>
-    </div>
+    <Router>
+      <Navbar />
+      <div className="content-wrapper">
+        <Switch>
+          <Route path="/" exact component={HomeView} />
+          <Route path="/chat/:id" component={ChatView} />
+          <Route path="/settings" component={SettingsView} />
+          <Route path="/login" component={LoginView} />
+          <Route path="/register" component={RegisterView} />
+        </Switch>
+      </div>
+    </Router>
   );
 };
 
