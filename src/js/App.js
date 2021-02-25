@@ -1,35 +1,80 @@
-import React from "react";
-import { Provider } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { HashRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+import StoreProvider from "./store/StoreProvider";
 
 import HomeView from "./views/Home";
 import SettingsView from "./views/Settings";
-import LoginView from "./views/Login";
-import RegisterView from "./views/Register";
-import Navbar from "./components/Navbar";
+import WelcomeView from "./views/Welcome";
 import ChatView from "./views/Chat";
 
-import configureStore from "./store";
+import { listenToAuthChanges } from "./actions/auth";
+import LoadingView from "./components/shared/LoadingView";
 
-const store = configureStore();
+function AuthRoute({ children, ...rest }) {
+  const user = useSelector(({ auth }) => auth.user);
+  const onlyChild = React.Children.only(children);
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        user ? (
+          React.cloneElement(onlyChild, { ...rest, ...props })
+        ) : (
+          <Redirect to="/" />
+        )
+      }
+    />
+  );
+}
+
+const ContentWrapper = ({ children }) => (
+  <div className="content-wrapper">{children}</div>
+);
+
+const ChatApp = () => {
+  const dispatch = useDispatch();
+  const isChecking = useSelector(({ auth }) => auth.isChecking);
+  useEffect(() => {
+    dispatch(listenToAuthChanges());
+  }, []);
+
+  if (isChecking) {
+    return <LoadingView />;
+  }
+
+  return (
+    <Router>
+      <ContentWrapper>
+        <Switch>
+          <Route path="/" exact component={WelcomeView} />
+          <AuthRoute path="/chat/:id">
+            <ChatView />
+          </AuthRoute>
+          <AuthRoute path="/settings">
+            <SettingsView />
+          </AuthRoute>
+          <AuthRoute path="/home">
+            <HomeView />
+          </AuthRoute>
+        </Switch>
+      </ContentWrapper>
+    </Router>
+  );
+};
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <Router>
-        <Navbar />
-        <div className="content-wrapper">
-          <Switch>
-            <Route path="/" exact component={HomeView} />
-            <Route path="/chat/:id" component={ChatView} />
-            <Route path="/settings" component={SettingsView} />
-            <Route path="/login" component={LoginView} />
-            <Route path="/register" component={RegisterView} />
-          </Switch>
-        </div>
-      </Router>
-    </Provider>
+    <StoreProvider>
+      <ChatApp />
+    </StoreProvider>
   );
 };
 

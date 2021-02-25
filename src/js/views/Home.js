@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import JoinedChatsList from "../components/JoinedChatList";
 import AvailableChatsList from "../components/AvailableChatsList";
 import ViewTitle from "../components/shared/ViewTitle";
+import { withBaseLayout } from "./layouts/Base";
 
 import { fetchChats } from "../actions/chats";
 
@@ -27,4 +28,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default withBaseLayout(Home);
