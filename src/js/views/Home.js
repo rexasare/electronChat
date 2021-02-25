@@ -8,11 +8,13 @@ import ViewTitle from "../components/shared/ViewTitle";
 import { withBaseLayout } from "./layouts/Base";
 
 import { fetchChats } from "../actions/chats";
+import Notification from "../utils/notifications";
 
 const Home = () => {
   const dispatch = useDispatch();
   const chats = useSelector(({ chats }) => chats.items);
   useEffect(() => {
+    Notification.setup();
     dispatch(fetchChats());
   }, [dispatch]);
   return (

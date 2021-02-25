@@ -28,8 +28,8 @@ if (isDev) {
 
 app.on("ready", () => createWindow());
 
-ipcMain.on("send:notify", (event, message) => {
-  new Notification({ title: "Notification", body: message }).show();
+ipcMain.on("send:notify", (event, { title, message }) => {
+  new Notification({ title: title, body: message }).show();
 });
 
 app.on("window-all-closed", () => {
