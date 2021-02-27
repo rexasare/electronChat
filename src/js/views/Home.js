@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "../components/Navbar";
@@ -12,7 +13,9 @@ import Notification from "../utils/notifications";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const chats = useSelector(({ chats }) => chats.items);
+  // const chats = useSelector(({ chats }) => chats.items);
+  const joinedChats = useSelector(({ chats }) => chats.joined);
+  const availableChats = useSelector(({ chats }) => chats.available);
   useEffect(() => {
     Notification.setup();
     dispatch(fetchChats());
@@ -20,11 +23,15 @@ const Home = () => {
   return (
     <div className="row no-gutters fh">
       <div className="col-3 fh">
-        <JoinedChatsList chats={chats} />
+        <JoinedChatsList chats={joinedChats} />
       </div>
       <div className="col-9 fh">
-        <ViewTitle text="Choose your channel" />
-        <AvailableChatsList chats={chats} />
+        <ViewTitle text="Choose your channel">
+          <Link className="btn btn-outline-primary" to="/chatCreate">
+            New
+          </Link>
+        </ViewTitle>
+        <AvailableChatsList chats={availableChats} />
       </div>
     </div>
   );

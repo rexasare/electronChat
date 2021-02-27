@@ -13,9 +13,11 @@ import HomeView from "./views/Home";
 import SettingsView from "./views/Settings";
 import WelcomeView from "./views/Welcome";
 import ChatView from "./views/Chat";
+import ChatCreate from "./views/ChatCreate";
 
 import { listenToAuthChanges } from "./actions/auth";
 import { listenToConnectionChanges } from "./actions/app";
+import { checkUserConnection } from "./actions/connection";
 import LoadingView from "./components/shared/LoadingView";
 
 function AuthRoute({ children, ...rest }) {
@@ -44,6 +46,7 @@ const ChatApp = () => {
   const dispatch = useDispatch();
   const isChecking = useSelector(({ auth }) => auth.isChecking);
   const isOnline = useSelector(({ app }) => app.isOnline);
+  const user = useSelector(({ auth }) => auth.user);
 
   const alertOnlineStatus = () => {
     alert(navigator.onLine ? "online" : "offline");
@@ -58,6 +61,17 @@ const ChatApp = () => {
       unsubFromConnection();
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    let unsubFromUserConnection;
+    if (user?.uid) {
+      unsubFromUserConnection = dispatch(checkUserConnection(user.uid));
+    }
+
+    return () => {
+      unsubFromUserConnection && unsubFromUserConnection();
+    };
+  }, [dispatch, user]);
 
   if (!isOnline) {
     return (
@@ -82,6 +96,9 @@ const ChatApp = () => {
           </AuthRoute>
           <AuthRoute path="/home">
             <HomeView />
+          </AuthRoute>
+          <AuthRoute path="/chatCreate">
+            <ChatCreate />
           </AuthRoute>
         </Switch>
       </ContentWrapper>

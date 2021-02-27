@@ -11,6 +11,7 @@ import {
   AUTH_LOGIN_INIT,
   AUTH_LOGIN_ERROR,
   AUTH_REGISTER_ERROR,
+  CHATS_FETCH_RESTART,
 } from "./types";
 
 export const registerUser = (formData) => (dispatch) => {
@@ -34,7 +35,10 @@ export const listenToAuthChanges = () => (dispatch) => {
 };
 
 export const logout = () => (dispatch) => {
-  api.logout().then((_) => dispatch({ type: AUTH_LOGOUT_SUCCESS }));
+  api.logout().then((_) => {
+    dispatch({ type: AUTH_LOGOUT_SUCCESS });
+    dispatch({ type: CHATS_FETCH_RESTART });
+  });
 };
 
 export const loginUser = (formData) => (dispatch) => {

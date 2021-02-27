@@ -1,6 +1,16 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { joinChat } from "../actions/chats";
 
 const AvailableChatsList = ({ chats }) => {
+  const user = useSelector(({ auth }) => auth.user);
+  const dispatch = useDispatch();
+  const askForConfirmation = (chat) => {
+    const isConfirming = confirm(`Do you want to join the chat: ${chat.name}`);
+    if (isConfirming) {
+      dispatch(joinChat(chat, user.uid));
+    }
+  };
   const availableChats = chats.map((chat) => {
     return (
       <div key={chat.id} className="col-lg-3 col-md-6 mb-3">
@@ -8,7 +18,10 @@ const AvailableChatsList = ({ chats }) => {
           <div className="card-body">
             <h5 className="card-title">{chat.name}</h5>
             <p className="card-text">Some Chat 1 Description</p>
-            <button onClick={() => {}} className="btn btn-outline-primary">
+            <button
+              onClick={() => askForConfirmation(chat)}
+              className="btn btn-outline-primary"
+            >
               Join Chat
             </button>
           </div>
