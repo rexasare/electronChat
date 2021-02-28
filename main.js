@@ -32,6 +32,10 @@ ipcMain.on("send:notify", (event, { title, message }) => {
   new Notification({ title: title, body: message }).show();
 });
 
+ipcMain.on("app-quit", () => {
+  app.quit();
+});
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     //check if app is not running on mac

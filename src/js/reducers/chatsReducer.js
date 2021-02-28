@@ -53,7 +53,29 @@ function createChatReducer() {
         joinedUsers[index].state = user.state;
       });
   });
-  return combineReducers({ joined, available, activeChats });
+
+  const messages = createReducer({}, (builder) => {
+    builder.addCase("CHATS_SET_MESSAGES", (state, action) => {
+      const prevMessages = state[action.chatId] || [];
+      state[action.chatId] = [...prevMessages, ...action.messages];
+    });
+  });
+
+  const messagesSubs = (state = {}, action) => {
+    switch (action.type) {
+      case "CHATS_REGISTER_MESSAGE_SUB":
+        return { ...state, [action.chatId]: action.sub };
+      default:
+        return state;
+    }
+  };
+  return combineReducers({
+    joined,
+    available,
+    activeChats,
+    messages,
+    messagesSubs,
+  });
 }
 
 export default createChatReducer();

@@ -18,6 +18,7 @@ import ChatCreate from "./views/ChatCreate";
 import { listenToAuthChanges } from "./actions/auth";
 import { listenToConnectionChanges } from "./actions/app";
 import { checkUserConnection } from "./actions/connection";
+import { loadInitialSettings } from "./actions/settings";
 import LoadingView from "./components/shared/LoadingView";
 
 function AuthRoute({ children, ...rest }) {
@@ -38,9 +39,15 @@ function AuthRoute({ children, ...rest }) {
   );
 }
 
-const ContentWrapper = ({ children }) => (
-  <div className="content-wrapper">{children}</div>
-);
+const ContentWrapper = ({ children }) => {
+  const isDarkTheme = useSelector(({ settings }) => settings.isDarkTheme);
+
+  return (
+    <div className={`content-wrapper ${isDarkTheme ? "dark" : "light"}`}>
+      {children}
+    </div>
+  );
+};
 
 const ChatApp = () => {
   const dispatch = useDispatch();
@@ -53,6 +60,7 @@ const ChatApp = () => {
   };
 
   useEffect(() => {
+    dispatch(loadInitialSettings());
     const unsubFromAuth = dispatch(listenToAuthChanges());
     const unsubFromConnection = dispatch(listenToConnectionChanges());
 

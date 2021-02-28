@@ -6,18 +6,32 @@ import ChatUserList from "../components/ChatUsersList";
 import ChatMessagesList from "../components/ChatMessagesList";
 import ViewTitle from "../components/shared/ViewTitle";
 import { withBaseLayout } from "./layouts/Base";
-import { subscribeToChat, subscribeToProfile } from "../actions/chats";
+import {
+  subscribeToChat,
+  subscribeToProfile,
+  sendChatMessage,
+  subscribeToMessages,
+  registerMessageSubscription,
+} from "../actions/chats";
 import LoadingView from "../components/shared/LoadingView";
+import Messenger from "../components/Messenger";
 
 const Chat = () => {
   const { id } = useParams();
   const peopleWatchers = useRef({});
+  const messageList = useRef();
   const dispatch = useDispatch();
   const activeChat = useSelector(({ chats }) => chats.activeChats[id]);
+  const messages = useSelector(({ chats }) => chats.messages[id]);
+  const messagesSub = useSelector(({ chats }) => chats.messagesSubs[id]);
   const joinedUsers = activeChat?.joinedUsers;
 
   useEffect(() => {
     const unsubFromChat = dispatch(subscribeToChat(id));
+    if (!messagesSub) {
+      const unsubFromMessages = dispatch(subscribeToMessages(id));
+      dispatch(registerMessageSubscription(id, unsubFromMessages));
+    }
     return () => {
       unsubFromChat;
       unsubFromJoinedUsers();
@@ -41,6 +55,15 @@ const Chat = () => {
     [dispatch, id]
   );
 
+  const sendMessage = useCallback(
+    (message) => {
+      dispatch(sendChatMessage(message, id)).then((_) =>
+        messageList.current.scrollIntoView(false)
+      );
+    },
+    [id]
+  );
+
   const unsubFromJoinedUsers = useCallback(() => {
     Object.keys(peopleWatchers.current).forEach((id) =>
       peopleWatchers.current[id]()
@@ -57,7 +80,8 @@ const Chat = () => {
       </div>
       <div className="col-9 fh">
         <ViewTitle text={`Channel ${activeChat?.name}`} />
-        <ChatMessagesList />
+        <ChatMessagesList innerRef={messageList} messages={messages} />
+        <Messenger onSubmit={sendMessage} />
       </div>
     </div>
   );
